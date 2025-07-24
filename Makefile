@@ -5,12 +5,13 @@ VERILATOR = verilator
 CXX = g++
 VERILATOR_FLAGS = -Wall --cc --exe --trace
 VERILATOR_FLAGS += -CFLAGS "-std=c++14 -O2"
-VERILATOR_FLAGS += -LDFLAGS "-pthread"
+VERILATOR_FLAGS += -LDFLAGS "-pthread $(shell sdl2-config --libs)"
+VERILATOR_FLAGS += -Irtl
 
 # Source files
-VERILOG_SOURCES = vga.sv
+VERILOG_SOURCES = rtl/display_controller.sv rtl/vga.sv
 CPP_SOURCES = tb_vga.cpp
-TOP_MODULE = vga_chip
+TOP_MODULE = display_controller
 
 # Output files
 EXECUTABLE = obj_dir/V$(TOP_MODULE)
@@ -22,7 +23,7 @@ all: $(EXECUTABLE)
 # Build the executable
 $(EXECUTABLE): $(VERILOG_SOURCES) $(CPP_SOURCES)
 	$(VERILATOR) $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES) $(CPP_SOURCES)
-	$(MAKE) -C obj_dir -f V$(TOP_MODULE).mk
+	make -C obj_dir -f V$(TOP_MODULE).mk
 
 # Run the simulation
 run: $(EXECUTABLE)
@@ -73,8 +74,8 @@ debug: $(EXECUTABLE)
 
 # Install dependencies (Ubuntu/Debian)
 install-deps:
-	@echo "Installing Verilator and GTKWave..."
+	@echo "Installing Verilator, GTKWave, and SDL2..."
 	sudo apt update
-	sudo apt install verilator gtkwave
+	sudo apt install verilator gtkwave libsdl2-dev
 
 .PHONY: all run waves clean lint sim help debug install-deps 
