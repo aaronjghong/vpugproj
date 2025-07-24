@@ -6,6 +6,7 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include <fstream>
+#include "image_data.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -49,7 +50,7 @@ public:
         Verilated::traceEverOn(true);
         trace = std::make_unique<VerilatedVcdC>();
         dut->trace(trace.get(), 99);
-        trace->open("vga_trace.vcd");
+        trace->open("output/vga_trace.vcd");
         
         // Initialize DUT
         dut->clk = 0;
@@ -74,6 +75,15 @@ public:
     
     ~VGATestbench() {
         trace->close();
+    }
+
+    void get_image_data(uint32_t row_to_fetch) {
+        if(row_to_fetch < HEIGHT) {
+            uint32_t base_index = row_to_fetch * WIDTH;
+            for (int i = 0; i < WIDTH; i++) {
+                dut->buffer[i] = image_data[base_index + i];
+            }
+        }
     }
     
     void clock_tick() {
@@ -111,6 +121,10 @@ public:
         for (uint64_t cycle = 0; cycle < max_cycles; cycle++) {
             clock_tick();
             
+            if (dut->vga_hsync) {
+                get_image_data(dut->curr_y);
+            }
+
             if(dut->curr_y < HEIGHT && dut->curr_x < WIDTH) {
                 frame_buffer[dut->curr_y * WIDTH + dut->curr_x] = dut->vga_r << 16 | dut->vga_g << 8 | dut->vga_b;
             }
@@ -151,15 +165,15 @@ public:
         }
         
         std::cout << "Simulation complete. Total cycles: " << sim_time/2 << std::endl;
-        std::cout << "Generated trace file: vga_trace.vcd" << std::endl;
+        std::cout << "Generated trace file: output/vga_trace.vcd" << std::endl;
 
         // Save the frame buffer to a bmp file
         SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(frame_buffer.data(), WIDTH, HEIGHT, 32, WIDTH * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-        SDL_SaveBMP(surface, "frame_buffer.bmp");
+        SDL_SaveBMP(surface, "output/frame_buffer.bmp");
         SDL_FreeSurface(surface);
 
         // Save the frame buffer to a binary file
-        std::ofstream frame_buffer_file("frame_buffer.bin", std::ios::binary);
+        std::ofstream frame_buffer_file("output/frame_buffer.bin", std::ios::binary);
         frame_buffer_file.write(reinterpret_cast<char*>(frame_buffer.data()), frame_buffer.size() * sizeof(uint32_t));
         frame_buffer_file.close();
 

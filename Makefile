@@ -7,11 +7,13 @@ VERILATOR_FLAGS = -Wall --cc --exe --trace
 VERILATOR_FLAGS += -CFLAGS "-std=c++14 -O2"
 VERILATOR_FLAGS += -LDFLAGS "-pthread $(shell sdl2-config --libs)"
 VERILATOR_FLAGS += -Irtl
+VERILATOR_FLAGS += -Iscripts
 
 # Source files
 VERILOG_SOURCES = rtl/display_controller.sv rtl/vga.sv
 CPP_SOURCES = tb_vga.cpp
 TOP_MODULE = display_controller
+TEST_IMAGE = img/test_image.png
 
 # Output files
 EXECUTABLE = obj_dir/V$(TOP_MODULE)
@@ -22,12 +24,14 @@ all: $(EXECUTABLE)
 
 # Build the executable
 $(EXECUTABLE): $(VERILOG_SOURCES) $(CPP_SOURCES)
+	python3 scripts/image_to_header.py $(TEST_IMAGE)
 	$(VERILATOR) $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES) $(CPP_SOURCES)
 	make -C obj_dir -f V$(TOP_MODULE).mk
 
 # Run the simulation
 run: $(EXECUTABLE)
 	@echo "Running VGA simulation..."
+	mkdir -p output
 	./$(EXECUTABLE)
 	@echo "Simulation complete. Trace file: $(TRACE_FILE)"
 
