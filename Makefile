@@ -11,7 +11,7 @@ VERILATOR_FLAGS += -Iscripts
 
 # Source files
 VERILOG_SOURCES = rtl/display_controller.sv rtl/vga.sv
-CPP_SOURCES = tb_vga.cpp
+CPP_SOURCES = tb/tb_vga.cpp
 TOP_MODULE = display_controller
 TEST_IMAGE = img/test_image.png
 
@@ -24,6 +24,7 @@ all: $(EXECUTABLE)
 
 # Build the executable
 $(EXECUTABLE): $(VERILOG_SOURCES) $(CPP_SOURCES)
+	mkdir -p obj_dir
 	python3 scripts/image_to_header.py $(TEST_IMAGE)
 	$(VERILATOR) $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES) $(CPP_SOURCES)
 	make -C obj_dir -f V$(TOP_MODULE).mk
