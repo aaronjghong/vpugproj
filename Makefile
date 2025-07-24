@@ -77,10 +77,4 @@ debug: VERILATOR_FLAGS += -CFLAGS "-DDEBUG -g"
 debug: $(EXECUTABLE)
 	@echo "Debug build complete. Run with: ./$(EXECUTABLE)"
 
-# Install dependencies (Ubuntu/Debian)
-install-deps:
-	@echo "Installing Verilator, GTKWave, and SDL2..."
-	sudo apt update
-	sudo apt install verilator gtkwave libsdl2-dev
-
-.PHONY: all run waves clean lint sim help debug install-deps 
+.PHONY: all run waves clean lint sim help debug
