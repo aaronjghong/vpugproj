@@ -10,12 +10,14 @@ VERILATOR_FLAGS += -Irtl
 VERILATOR_FLAGS += -Iscripts
 
 # Source files
-VERILOG_SOURCES = rtl/display_controller.sv rtl/vga.sv
+VERILOG_SOURCES = rtl/display/display_controller.sv rtl/display/vga.sv
 CPP_SOURCES = tb/tb_vga.cpp
 TOP_MODULE = display_controller
 TEST_IMAGE = img/test_image.png
+FONT_SOURCES = img/ascii_font/fill.png img/ascii_font/edge.png
 
 # Output files
+FONT_OUTPUTS = rtl/ascii_shaders/ascii_texture_fill.sv rtl/ascii_shaders/ascii_texture_edge.sv
 EXECUTABLE = obj_dir/V$(TOP_MODULE)
 TRACE_FILE = vga_trace.vcd
 
@@ -25,6 +27,7 @@ all: $(EXECUTABLE)
 # Build the executable
 $(EXECUTABLE): $(VERILOG_SOURCES) $(CPP_SOURCES)
 	mkdir -p obj_dir
+	python3 scripts/ascii_to_verilog.py --image_paths $(FONT_SOURCES) --output_paths $(FONT_OUTPUTS)
 	python3 scripts/image_to_header.py $(TEST_IMAGE)
 	$(VERILATOR) $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES) $(CPP_SOURCES)
 	make -C obj_dir -f V$(TOP_MODULE).mk

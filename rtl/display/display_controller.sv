@@ -27,13 +27,13 @@ module display_controller #(
     output logic [H_TOTAL_LOG2-1:0] curr_x,
     output logic [V_TOTAL_LOG2-1:0] curr_y
 );
-// localparam H_TOTAL_LOG2 = $clog2(H_TOTAL);
-// localparam V_TOTAL_LOG2 = $clog2(V_TOTAL);
-
-// logic [H_TOTAL_LOG2-1:0] curr_x;
-// logic [V_TOTAL_LOG2-1:0] curr_y;
 logic [DATA_WIDTH-1:0] pixel_data;
 
+initial begin
+    curr_x = 0;
+    curr_y = 0;
+    pixel_data = 0;
+end
 
 always @(posedge clk) begin
     if (rst) begin
