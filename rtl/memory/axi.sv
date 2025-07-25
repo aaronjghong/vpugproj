@@ -76,6 +76,25 @@ interface axi_if #(
     input  RREADY
   );
 
+  task master_init();
+    AWADDR <= 0;
+    AWVALID <= 0;
+    AWLEN <= 0;
+    AWSIZE <= 0;
+    AWBURST <= 0;
+    WDATA <= 0;
+    WVALID <= 0;
+    WLAST <= 0;
+    WSTRB <= 0;
+    BREADY <= 0;
+    ARADDR <= 0;
+    ARVALID <= 0;
+    ARLEN <= 0;
+    ARSIZE <= 0;
+    ARBURST <= 0;
+    RREADY <= 0;
+  endtask
+
   task master_read(input logic [ADDR_WIDTH-1:0] addr, output logic [DATA_WIDTH-1:0] data[MAX_BURSTS-1:0]);
     @(posedge clk);
     ARADDR <= addr;
@@ -93,6 +112,7 @@ interface axi_if #(
     @(posedge clk);
     RREADY <= 0;
   endtask
+
   task master_write(input logic [ADDR_WIDTH-1:0] addr, input logic [DATA_WIDTH-1:0] data);
     @(posedge clk);
   endtask
